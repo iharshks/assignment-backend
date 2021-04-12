@@ -1,15 +1,14 @@
 import { RequestHandler } from 'express';
 import { userlist } from '../assets/constant/users'
-import { pool } from '../database/db'
+import { queryFun } from '../database/db'
 
 export const createUser: RequestHandler = async function(req, res, next) {
     try {
         if( ['fname', 'mname', 'lname', 'email', 'phone', 'role', 'address'].every(el => el in req.body && req.body[el]) ) {
             if( !req.body.hasOwnProperty('editable')  ) req.body['editable'] = false;
-            // req.body['id'] = Math.floor(Math.random() * Date.now())
-            // userlist.push(req.body);
+            
             const { fname, mname, lname, email, phone, role, address} = req.body;
-            const newUser = await pool.query(
+            const newUser = await queryFun(
             "INSERT INTO userr(fname,lname, mname, role, address,email, phone) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
              [ fname,lname, mname, role, address,email, phone]);
             console.log( newUser.rows)
@@ -31,10 +30,8 @@ export const createUser: RequestHandler = async function(req, res, next) {
 
 export const getUser: RequestHandler = async function(req, res, next) {
     try {
-        // userlist.map((el:any) => {
-        //     el['id'] = Math.floor(Math.random() * Date.now())
-        // });
-        const newUser = await pool.query(
+        
+        const newUser = await queryFun(
             "SELECT * FROM userr"
         )
         res.status(200).send({users: newUser.rows});
